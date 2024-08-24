@@ -1,0 +1,26 @@
+x-logging: &logging
+  logging:
+    driver: "json-file"
+    options:
+      max-file: "10"
+      max-size: "100m"
+
+services:
+  workspace:
+    container_name: ${PROJECT_NAME:-default}-workspace-container
+    restart: unless-stopped
+    env_file: .env
+    ports: 
+      - "3000:3000"
+    build:
+      context: ./workspace
+      args:
+        USERNAME: ${USERNAME:-vscode}
+        USER_GROUP_NAME: ${USER_GROUP_NAME:-workspace}
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    tty: true
+    volumes:
+      - ./workspace/projects:/home/${USERNAME:-vscode}/workspace:cached
+    working_dir: /home/${USERNAME:-vscode}/workspace
+    <<: *logging
